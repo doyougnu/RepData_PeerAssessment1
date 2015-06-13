@@ -2,24 +2,110 @@
 title: "Reproducible Research: Peer Assessment 1"
 output: 
   html_document:
+    pandoc_args: [
+      "+RTS", "-K64m",
+      "-RTS"
+    ]
     keep_md: true
 ---
 
 
 ## Loading and preprocessing the data
+```{r, echo = TRUE}
+library(ggplot2)
+library(dplyr)
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", "CourseProject1_Dataset.zip", method = "curl")
+unzip("CourseProject1_Dataset.zip")
+df.raw <- read.csv("activity.csv", header = T, sep = ",", na.strings = c(""))
 
-
+#the following coercian is sloppy but prevents 0's from becoming 1's when
+#converting a factor to numeric
+df <- df.raw
+df$steps <- as.numeric(as.character(df$steps))
+df <- na.omit(df)
+```
 
 ## What is mean total number of steps taken per day?
+```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+qplot(date, data=df, geom="bar", binwidth = 0.2,
+      weight=steps, ylab = "Total Steps") + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-
+print.data.frame(df %>% 
+                     group_by(date) %>%
+                     summarise(avgStepsPerDay = mean(steps, na.rm = T), 
+                               medStepsPerDay = median(steps, na.rm = T)),
+                 row.names = FALSE)
+```
 
 ## What is the average daily activity pattern?
-
-
+```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+df.dailyPatterns <- df %>%
+                        group_by(interval) %>%
+                        summarise(avgStepPerInterval = mean(steps, na.rm = T))
+qplot(x = interval, y = avgStepPerInterval, data=df.dailyPatterns, geom = "point")
+df.dailyPatterns %>% filter(avgStepPerInterval == max(avgStepPerInterval))
+```
 
 ## Imputing missing values
+```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+#calculate and report the total number of NAs in the dataset
+sum(is.na(df.raw$steps))
 
+#Impute missing values
+library(randomForest)
+df.imputed <- df.raw
+df.imputed$steps <- as.numeric(as.character(df.imputed$steps))
+df.imputed$steps <- na.roughfix(df.imputed$steps)
 
+#Proof of Imputation
+any(is.na(df.imputed$steps))
+
+#remake plots with imputed df
+qplot(date, data=df.imputed, geom="bar", binwidth = 0.2,
+      weight=steps, ylab = "Total Steps") + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+print.data.frame(df.imputed %>% 
+                     group_by(date) %>%
+                     summarise(avgStepsPerDay = mean(steps, na.rm = T), 
+                               medStepsPerDay = median(steps, na.rm = T)),
+                 row.names = FALSE)
+```
+
+One difference between the two datasets is in the number of 0's due to 
+the randomForest package using **mode** to impute on the steps variable which is
+considered a factor in the df.raw dataset. See this code:
+
+```{r, echo = TRUE}
+table(df.imputed$steps)[["0"]]
+table(df.raw$steps)[["0"]]
+```
+
+Another difference is in the Average Steps per day, compare the imputed table
+with the un-imputed table.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+#fix dates
+df.imputed$date <- as.Date(df.imputed$date)
+
+#create facet labels
+df.weekday <- mutate(df.imputed, 
+                     day = weekdays(date),
+                     isWeekend = ifelse(day %in% c("Sunday", "Saturday")
+                                        , "Weekend"
+                                        , "Weekday")
+)
+
+#aggregate using dplyr
+df.weekday <- df.weekday %>%
+    group_by(interval, isWeekend) %>% 
+    summarise(avgStepsPerDay = mean(steps, na.rm = T))
+
+#plot
+qplot(x = interval, y = avgStepsPerDay
+      , data = df.weekday, geom = "line"
+      , facets = isWeekend ~ .
+      )
+```
