@@ -6,22 +6,6 @@
 ```r
 library(ggplot2)
 library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", "CourseProject1_Dataset.zip", method = "curl")
 unzip("CourseProject1_Dataset.zip")
 df.raw <- read.csv("activity.csv", header = T, sep = ",", na.strings = c(""))
@@ -30,13 +14,6 @@ df.raw <- read.csv("activity.csv", header = T, sep = ",", na.strings = c(""))
 #converting a factor to numeric
 df <- df.raw
 df$steps <- as.numeric(as.character(df$steps))
-```
-
-```
-## Warning: NAs introduced by coercion
-```
-
-```r
 df <- na.omit(df)
 ```
 
@@ -151,20 +128,6 @@ sum(is.na(df.raw$steps))
 ```r
 #Impute missing values
 library(randomForest)
-```
-
-```
-## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.
-## 
-## Attaching package: 'randomForest'
-## 
-## The following object is masked from 'package:dplyr':
-## 
-##     combine
-```
-
-```r
 df.imputed <- df.raw
 df.imputed$steps <- as.numeric(as.character(df.imputed$steps))
 df.imputed$steps <- na.roughfix(df.imputed$steps)

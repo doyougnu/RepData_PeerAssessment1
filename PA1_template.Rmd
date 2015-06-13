@@ -11,7 +11,7 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r, echo = TRUE}
+```{r, echo = TRUE, message = F, warning=F}
 library(ggplot2)
 library(dplyr)
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", "CourseProject1_Dataset.zip", method = "curl")
@@ -48,7 +48,7 @@ df.dailyPatterns %>% filter(avgStepPerInterval == max(avgStepPerInterval))
 ```
 
 ## Imputing missing values
-```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+```{r, echo = TRUE, warning=FALSE, message=FALSE, fig.height=6, fig.width=11}
 #calculate and report the total number of NAs in the dataset
 sum(is.na(df.raw$steps))
 
