@@ -2,12 +2,18 @@
 
 
 ## Loading and preprocessing the data
+The data comes in a zip file, so we first need to download with method = "curl"
+to download from a "https" link, then unzip, then load:
 
 ```r
 library(ggplot2)
 library(dplyr)
+
+#downlaod the dataset, which comes as a zip
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", "CourseProject1_Dataset.zip", method = "curl")
 unzip("CourseProject1_Dataset.zip")
+
+#read in dataset
 df.raw <- read.csv("activity.csv", header = T, sep = ",", na.strings = c(""))
 
 #the following coercian is sloppy but prevents 0's from becoming 1's when
@@ -16,8 +22,16 @@ df <- df.raw
 df$steps <- as.numeric(as.character(df$steps))
 df <- na.omit(df)
 ```
+I seperate the raw dataset from the working dataset for the first few plots. I
+chose this method because of the imputation task that comes later. This way I
+don't need to re-download, yet I can still plot the first few analysis with a 
+dataset I'm comfortable with.
+
+I prefer ggplot2 and dplyr for this type of assignment, maybe its due to my love
+of functional programming.
 
 ## What is mean total number of steps taken per day?
+Pretty easy, plot hard and fast with qplot, and aggregate with dplyr summarise
 
 ```r
 qplot(date, data=df, geom="bar", binwidth = 0.2,
@@ -28,6 +42,7 @@ qplot(date, data=df, geom="bar", binwidth = 0.2,
 ![](PA1_template_files/figure-html/meanStepsPerDay-1.png) 
 
 ```r
+#print aggregated dataframe
 print.data.frame(df %>% 
                      group_by(date) %>%
                      summarise(avgStepsPerDay = mean(steps, na.rm = T), 
@@ -93,17 +108,23 @@ print.data.frame(df %>%
 ```
 
 ## What is the average daily activity pattern?
+Similar to the previous task, this time just change the "group_by" call.
+For the max just filter by max.
 
 ```r
+#aggregate mean per day
 df.dailyPatterns <- df %>%
                         group_by(interval) %>%
                         summarise(avgStepPerInterval = mean(steps, na.rm = T))
+
+#Now plot
 qplot(x = interval, y = avgStepPerInterval, data=df.dailyPatterns, geom = "point")
 ```
 
 ![](PA1_template_files/figure-html/meanActivityPattern-1.png) 
 
 ```r
+#print the max average steps per day
 df.dailyPatterns %>% filter(avgStepPerInterval == max(avgStepPerInterval))
 ```
 
@@ -115,14 +136,20 @@ df.dailyPatterns %>% filter(avgStepPerInterval == max(avgStepPerInterval))
 ```
 
 ## Imputing missing values
+As with most tasks in R, there is a library and best practice for imputing,
+here I'm using randomForest and na.roughfix function to impute. Na.roughfix
+uses different methods depending on the class it receives. In this instance it
+should use a median to impute, if given a factor it would choose to use a mode
+function call to impute. Thus I expect several more "0"'s in the dataset; as you
+can see above the median for just about every day is 0.
 
 ```r
 #calculate and report the total number of NAs in the dataset
-sum(is.na(df.raw$steps))
+table(df.raw$steps)[["NA"]]
 ```
 
 ```
-## [1] 0
+## [1] 2304
 ```
 
 ```r
@@ -222,9 +249,11 @@ print.data.frame(df.imputed %>%
 ##  2012-11-30      0.0000000              0
 ```
 
-One difference between the two datasets is in the number of 0's due to 
-the randomForest package using **mode** to impute on the steps variable which is
-considered a factor in the df.raw dataset. See this code:
+One difference is in the Average Steps per day, compare the imputed table
+with the un-imputed table, this is due to an increase in the number of 0's in
+the dataset due to the imputation performed. An increase of 2304 in the count of
+0's to be exact; an identical number to the previous number of NA's, not by
+coincidence. See this code:
 
 
 ```r
@@ -243,10 +272,8 @@ table(df.raw$steps)[["0"]]
 ## [1] 11014
 ```
 
-Another difference is in the Average Steps per day, compare the imputed table
-with the un-imputed table.
-
 ## Are there differences in activity patterns between weekdays and weekends?
+Same methods just tweaking the existing code.
 
 ```r
 #fix dates
@@ -257,8 +284,7 @@ df.weekday <- mutate(df.imputed,
                      day = weekdays(date),
                      isWeekend = ifelse(day %in% c("Sunday", "Saturday")
                                         , "Weekend"
-                                        , "Weekday")
-)
+                                        , "Weekday"))
 
 #aggregate using dplyr
 df.weekday <- df.weekday %>%
@@ -268,8 +294,7 @@ df.weekday <- df.weekday %>%
 #plot
 qplot(x = interval, y = avgStepsPerDay
       , data = df.weekday, geom = "line"
-      , facets = isWeekend ~ .
-      )
+      , facets = isWeekend ~ .)
 ```
 
 ![](PA1_template_files/figure-html/weekendDifference-1.png) 

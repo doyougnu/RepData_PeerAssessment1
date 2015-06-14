@@ -2,4 +2,5 @@
 *.zip
 *.html
 *.csv
-
+CourseProject1.Rmd
+.Rproj.user
