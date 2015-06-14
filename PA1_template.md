@@ -25,7 +25,7 @@ qplot(date, data=df, geom="bar", binwidth = 0.2,
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+![](PA1_template_files/figure-html/meanStepsPerDay-1.png) 
 
 ```r
 print.data.frame(df %>% 
@@ -101,7 +101,7 @@ df.dailyPatterns <- df %>%
 qplot(x = interval, y = avgStepPerInterval, data=df.dailyPatterns, geom = "point")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+![](PA1_template_files/figure-html/meanActivityPattern-1.png) 
 
 ```r
 df.dailyPatterns %>% filter(avgStepPerInterval == max(avgStepPerInterval))
@@ -147,7 +147,7 @@ qplot(date, data=df.imputed, geom="bar", binwidth = 0.2,
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![](PA1_template_files/figure-html/imputeMissing-1.png) 
 
 ```r
 print.data.frame(df.imputed %>% 
@@ -272,4 +272,4 @@ qplot(x = interval, y = avgStepsPerDay
       )
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+![](PA1_template_files/figure-html/weekendDifference-1.png) 

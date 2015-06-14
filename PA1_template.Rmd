@@ -11,7 +11,7 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r, echo = TRUE, message = F, warning=F}
+```{r PreProcessing, echo = TRUE, message = F, warning=F}
 library(ggplot2)
 library(dplyr)
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", "CourseProject1_Dataset.zip", method = "curl")
@@ -26,7 +26,7 @@ df <- na.omit(df)
 ```
 
 ## What is mean total number of steps taken per day?
-```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+```{r meanStepsPerDay, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
 qplot(date, data=df, geom="bar", binwidth = 0.2,
       weight=steps, ylab = "Total Steps") + 
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -39,7 +39,7 @@ print.data.frame(df %>%
 ```
 
 ## What is the average daily activity pattern?
-```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+```{r meanActivityPattern, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
 df.dailyPatterns <- df %>%
                         group_by(interval) %>%
                         summarise(avgStepPerInterval = mean(steps, na.rm = T))
@@ -48,7 +48,7 @@ df.dailyPatterns %>% filter(avgStepPerInterval == max(avgStepPerInterval))
 ```
 
 ## Imputing missing values
-```{r, echo = TRUE, warning=FALSE, message=FALSE, fig.height=6, fig.width=11}
+```{r imputeMissing, echo = TRUE, warning=FALSE, message=FALSE, fig.height=6, fig.width=11}
 #calculate and report the total number of NAs in the dataset
 sum(is.na(df.raw$steps))
 
@@ -77,7 +77,7 @@ One difference between the two datasets is in the number of 0's due to
 the randomForest package using **mode** to impute on the steps variable which is
 considered a factor in the df.raw dataset. See this code:
 
-```{r, echo = TRUE}
+```{r imputeDifference, echo = TRUE}
 table(df.imputed$steps)[["0"]]
 table(df.raw$steps)[["0"]]
 ```
@@ -86,7 +86,7 @@ Another difference is in the Average Steps per day, compare the imputed table
 with the un-imputed table.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
+```{r weekendDifference, echo = TRUE, warning=FALSE, error=FALSE, fig.height=6, fig.width=11}
 #fix dates
 df.imputed$date <- as.Date(df.imputed$date)
 
