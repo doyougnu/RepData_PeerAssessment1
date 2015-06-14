@@ -3,3 +3,4 @@
 *.csv
 CourseProject1.Rmd
 .Rproj.user
+.gitignore~

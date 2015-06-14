@@ -249,7 +249,7 @@ print.data.frame(df.imputed %>%
 ##  2012-11-30      0.0000000              0
 ```
 
-One difference is in the Average Steps per day, compare the imputed table
+One difference is in the Average Steps per day; compare the imputed table
 with the un-imputed table, this is due to an increase in the number of 0's in
 the dataset due to the imputation performed. An increase of 2304 in the count of
 0's to be exact; an identical number to the previous number of NA's, not by
